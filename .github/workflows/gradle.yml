@@ -1,7 +1,6 @@
-name: Build and Release
+name: Build
 on:
   push:
-    tags: [ '*' ] # Запуск при создании тега
 
 jobs:
   build:
@@ -23,37 +22,3 @@ jobs:
           name: musicbox
           path: |
             build/libs/MusicBox*-all.jar
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: musicbox
-          path: build/libs/
-      - name: Get Artifact Filename
-        id: get_filename
-        run: echo "FILENAME=$(basename build/libs/MusicBox*-all.jar)" >> $GITHUB_ENV
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/libs/${{ env.FILENAME }}
-          asset_name: ${{ env.FILENAME }}
-          asset_content_type: application/java-archive

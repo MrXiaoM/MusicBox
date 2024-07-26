@@ -49,11 +49,13 @@ public abstract class AbstractSelect implements SubCommand {
             return;
         }
 
-        String songName = args[1].replace('_', ' ');
-        MusicBoxSong song = MusicBoxSongManager.findByName(songName).orElse(null);
+        MusicBoxSong song = MusicBoxSongManager.findByName(args[1]).orElse(null);
         if (song == null) {
-            sender.sendMessage(Lang.SONG_NOT_FOUND.toString());
-            return;
+            song = MusicBoxSongManager.findByName(args[1].replace('_', ' ')).orElse(null);
+            if (song == null) {
+                sender.sendMessage(Lang.SONG_NOT_FOUND.toString());
+                return;
+            }
         }
         Player target;
         if (!sender.hasPermission("musicbox.admin")) {

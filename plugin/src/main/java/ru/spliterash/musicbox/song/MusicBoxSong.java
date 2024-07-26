@@ -34,7 +34,7 @@ public class MusicBoxSong {
         this.file = songFile;
         this.container = container;
         Song song = getSong();
-        this.name = StringUtils.t(StringUtils.getOrEmpty(song.getTitle(), () -> FileUtils.getFilename(file.getName())));
+        this.name = StringUtils.t(StringUtils.getOrEmpty(unicodeDecode(song.getTitle()), () -> FileUtils.getFilename(file.getName())));
         this.length = song.getLength();
         this.speed = song.getSpeed();
         this.hash = file.getPath().hashCode();
@@ -43,6 +43,17 @@ public class MusicBoxSong {
         hoverMap.put("{author}", song.getAuthor());
         hoverMap.put("{original_author}", song.getOriginalAuthor());
         hoverMap.put("{name}", getName());
+    }
+
+    public static String unicodeDecode(String string) {
+        if (string == null || string.isEmpty()) {
+            return string;
+        }
+        Matcher matcher = Pattern.compile("(\\\\u(\\p{XDigit}{4}))").matcher(string);
+        while (matcher.find()) {
+            string = string.replace(matcher.group(1), ((char) Integer.parseInt(matcher.group(2), 16)) + "");
+        }
+        return string;
     }
 
     public int getDuration() {
